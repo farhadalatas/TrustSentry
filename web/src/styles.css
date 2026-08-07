@@ -8,6 +8,7 @@
   --danger: #dc2626;
 }
 * { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
 body {
   margin: 0;
   background: var(--bg);
@@ -67,3 +68,48 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .log-line.error, .log-line.warn { color: var(--danger); }
 .btn { display: inline-block; background: var(--accent); color: #fff; text-decoration: none; border-radius: 6px; padding: 6px 12px; margin: 0 4px 4px 0; font-size: 13px; }
 code { background: #0b0d11; padding: 2px 6px; border-radius: 4px; }
+
+/* ---------- Responsive / professional report ---------- */
+.app { max-width: 1200px; }
+.row.wrap { flex-wrap: wrap; gap: 10px; }
+.btn-row { display: flex; flex-wrap: wrap; justify-content: flex-end; }
+
+/* tables scroll only inside wrapper (no page-wide horizontal scroll) */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+.report-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+.report-table th { background: #1f2530; text-align: left; padding: 10px; font-size: 12px; color: var(--muted); }
+.report-table td { padding: 9px 10px; border-top: 1px solid var(--border); vertical-align: top; word-break: break-word; }
+.report-table tbody tr:hover { background: #1d2230; }
+
+.sev-badge { display: inline-block; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.sev-CRITICAL { background: #b91c1c; }
+.sev-HIGH { background: #dc2626; }
+.sev-MEDIUM { background: #d97706; }
+.sev-LOW { background: #ca8a04; }
+.sev-INFO { background: #2563eb; }
+
+/* keep long evidence boxes from pushing the page sideways */
+.finding pre, .grid textarea {
+  max-width: 100%;
+  overflow-x: auto;
+  word-break: break-word;
+}
+
+/* responsive breakpoints */
+@media (max-width: 768px) {
+  .app { padding: 10px; }
+  header { flex-direction: column; align-items: stretch; gap: 10px; }
+  header h1 { font-size: 16px; }
+  nav { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  nav button { white-space: nowrap; }
+  .grid { grid-template-columns: 1fr; }
+  .mods { grid-template-columns: 1fr; }
+  .kpis { flex-wrap: wrap; }
+  .kpi { flex: 1 1 40%; min-width: 0; }
+  .btn-row { justify-content: flex-start; }
+  .finding { flex-direction: column; }
+}
+@media (max-width: 460px) {
+  .kpi { flex: 1 1 100%; }
+  .log, .finding pre { max-height: 200px; }
+}
