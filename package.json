@@ -4,6 +4,7 @@
   "private": true,
   "description": "Auth workflow pentest toolkit - authorized testing only",
   "scripts": {
+    "dev": "node scripts/dev.js",
     "server": "npm --prefix server start",
     "server:dev": "npm --prefix server run dev",
     "web": "npm --prefix web run dev",
