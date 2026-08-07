@@ -5,11 +5,13 @@ import JwtPage from './pages/JwtPage.jsx';
 import CliPage from './pages/CliPage.jsx';
 import ReportPage from './pages/ReportPage.jsx';
 import HistoryPage from './pages/HistoryPage.jsx';
+import CatalogPage from './pages/CatalogPage.jsx';
 import { post, streamRun } from './lib/api.js';
 
 const TABS = [
   { id: 'config', label: 'Target & Config' },
   { id: 'results', label: 'Hasil Live' },
+  { id: 'catalog', label: 'Tool Catalog' },
   { id: 'jwt', label: 'JWT Tool' },
   { id: 'cli', label: 'CLI Tools' },
   { id: 'history', label: 'Riwayat' },
@@ -130,6 +132,7 @@ export default function App() {
         )}
         {tab === 'jwt' && <JwtPage />}
         {tab === 'cli' && <CliPage config={config} onRun={startRun} running={running} />}
+        {tab === 'catalog' && <CatalogPage config={config} onRun={startRun} running={running} />}
         {tab === 'history' && <HistoryPage />}
         {tab === 'report' && <ReportPage runId={runId} findings={findings} />}
       </main>

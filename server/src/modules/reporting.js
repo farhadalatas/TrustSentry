@@ -1,4 +1,5 @@
 const { SEV, SEV_SCORE } = require('../lib/severity.js');
+const { NOT_TESTED_CATEGORIES } = require('./catalog.js');
 
 function summarize(findings) {
   const counts = {};
@@ -50,6 +51,10 @@ pre{background:#f9fafb;padding:8px;margin:0;white-space:pre-wrap}
 <p>Total temuan: <b>${s.total}</b> &middot; Risk score: <b>${s.riskScore.toFixed(1)}</b></p>
 <p>${sevOrder.map((sv) => `<span class="badge" style="background:${sevColor[sv]}">${sv}: ${s.counts[sv] || 0}</span>`).join(' ')}</p>
 <table><tr><th>Severity</th><th>Finding</th><th>Evidence</th><th>Rekomendasi</th></tr>${rows}</table>
+<h2>Cakupan Pengujian (Not Tested / Out of Scope)</h2>
+<p>Kategori berikut <b>tidak diuji</b> dan berada di luar scope engagement ini:</p>
+<ul>${NOT_TESTED_CATEGORIES.map((c) => `<li>${escapeHtml(c)} — tidak diuji</li>`).join('')}</ul>
+<p>Catatan: semua pengujian dilakukan terhadap target yang disetujui/dimiliki (authorized scope).</p>
 </body></html>`;
 }
 

@@ -91,6 +91,16 @@ function start(name, cmd, args, env) {
   const hd = await hist.json();
   console.log('history runs:', hd.runs.length, 'latest:', hd.runs[0] && hd.runs[0].runId, 'risk:', hd.runs[0] && hd.runs[0].summary.riskScore);
 
+  // catalog + recommend
+  const cat = await fetch('http://localhost:4010/api/catalog').then((r) => r.json());
+  console.log('catalog tools:', cat.tools.length, 'categories:', cat.categories.length);
+  const rec = await fetch('http://localhost:4010/api/recommend?q=' + encodeURIComponent('cari subdomain')).then((r) => r.json());
+  console.log('recommend subdomain:', rec.tools.map((t) => t.name).join(', '));
+
+  // report HTML contains coverage section
+  const html2 = await (await fetch(`http://localhost:4010/api/runs/${runId}/report?format=html`)).text();
+  console.log('report has coverage section:', html2.includes('Cakupan Pengujian'));
+
   children.forEach((c) => c.kill('SIGKILL'));
   console.log('DONE');
 })().catch((e) => {

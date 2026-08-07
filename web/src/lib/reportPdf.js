@@ -11,6 +11,15 @@ const SEV_COLOR = {
 const SEV_ORDER = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'];
 const SEV_SCORE = { CRITICAL: 9, HIGH: 7.5, MEDIUM: 5, LOW: 3, INFO: 0.5 };
 
+const NOT_TESTED = [
+  'Phishing Attack Tools',
+  'Remote Administration Tools (RAT)',
+  'Payload Creation',
+  'DDoS / Availability Attacks',
+  'Wireless Attack (MITM / Rogue AP)',
+  'Keylogger / Credential Harvesting',
+];
+
 export function buildPdf({ findings, target, date, runId, requests }) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const W = doc.internal.pageSize.getWidth();
@@ -94,6 +103,25 @@ export function buildPdf({ findings, target, date, runId, requests }) {
       }
     },
   });
+
+  // ---- Cakupan pengujian (not tested / out of scope) ----
+  let cy = doc.lastAutoTable.finalY + 24;
+  if (cy + 40 > doc.internal.pageSize.getHeight() - 60) { doc.addPage(); cy = 40; }
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Cakupan - Tidak Diuji / Out of Scope', M, cy);
+  cy += 8;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(60, 66, 78);
+  NOT_TESTED.forEach((item) => {
+    doc.text(`• ${item} — tidak diuji`, M + 4, cy);
+    cy += 14;
+  });
+  cy += 6;
+  doc.setFontSize(7.5);
+  doc.setTextColor(90, 98, 110);
+  doc.text('Catatan: seluruh pengujian dilakukan terhadap target yang dimiliki/disetujui (authorized scope).', M, cy);
 
   // ---- Evidence appendix ----
   let ey = doc.lastAutoTable.finalY + 24;

@@ -14,6 +14,7 @@ const { runLogic } = require('./modules/logic.js');
 const { runScan, detectTools, buildArgs, TOOLS } = require('./modules/cli.js');
 const { renderReport, renderHtml } = require('./modules/reporting.js');
 const { persistRun, listRuns, getRun } = require('./lib/store.js');
+const { getCatalog, searchTools, recommendTools } = require('./modules/catalog.js');
 
 const app = express();
 app.use(cors());
@@ -192,6 +193,24 @@ app.post('/api/jwt/decode', (req, res) => {
 
 app.get('/api/tools', async (_req, res) => {
   res.json({ tools: TOOLS });
+});
+
+app.get('/api/catalog', async (_req, res) => {
+  try {
+    res.json(await getCatalog());
+  } catch (e) {
+    res.status(500).json({ error: { code: 'CATALOG_ERROR', message: e.message } });
+  }
+});
+
+app.get('/api/recommend', async (req, res) => {
+  try {
+    const { tools } = await getCatalog();
+    const out = recommendTools(req.query.q || '', tools);
+    res.json(out);
+  } catch (e) {
+    res.status(500).json({ error: { code: 'RECOMMEND_ERROR', message: e.message } });
+  }
 });
 
 const PORT = process.env.PORT || 4000;
