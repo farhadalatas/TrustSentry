@@ -1,0 +1,69 @@
+:root {
+  --bg: #0f1115;
+  --card: #171a21;
+  --border: #262b36;
+  --text: #e6e9ef;
+  --muted: #8b93a3;
+  --accent: #4f8cff;
+  --danger: #dc2626;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+}
+.app { max-width: 1100px; margin: 0 auto; padding: 16px; }
+header { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 18px; margin: 0; }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav button { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+nav button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+main { margin-top: 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+.card h2 { margin: 0 0 12px; font-size: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.card h3 { font-size: 13px; color: var(--muted); margin: 16px 0 8px; }
+label { display: block; margin: 8px 0 4px; font-size: 12px; color: var(--muted); }
+input, select, textarea {
+  width: 100%; background: #0b0d11; color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px; padding: 8px; font: inherit;
+}
+textarea { font-family: ui-monospace, monospace; font-size: 12px; }
+button {
+  background: #232a37; color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 14px; cursor: pointer; margin: 4px 4px 0 0;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 12px; }
+.wide { grid-column: 1 / -1; }
+.check { display: flex; gap: 8px; align-items: flex-start; color: var(--text); }
+.check input { width: auto; margin-top: 2px; }
+.mods { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.mod { display: flex; gap: 8px; align-items: flex-start; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin: 0; color: var(--text); cursor: pointer; }
+.mod small { display: block; color: var(--muted); }
+.mod input { width: auto; margin-top: 2px; }
+.flow { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
+.flow summary { cursor: pointer; font-size: 13px; }
+.row { display: flex; justify-content: space-between; align-items: center; }
+.muted { color: var(--muted); }
+.banner { background: #1e2837; border: 1px solid var(--accent); color: var(--accent); padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; }
+.banner.err { background: #33111a; border-color: var(--danger); color: var(--danger); }
+.err { color: var(--danger); }
+.note { font-size: 12px; color: var(--muted); }
+.note b { color: var(--danger); }
+.kpis { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.kpi { flex: 1; min-width: 90px; border: 1px solid var(--border); border-top: 3px solid #555; border-radius: 8px; padding: 10px; text-align: center; }
+.kpi b { display: block; font-size: 12px; }
+.kpi span { font-size: 22px; font-weight: 700; }
+.finding { border: 1px solid var(--border); border-left: 4px solid #555; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; gap: 10px; }
+.finding .sev { align-self: flex-start; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.finding p { margin: 4px 0; }
+.finding pre { background: #0b0d11; border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 11px; overflow: auto; max-height: 160px; }
+.log { background: #0b0d11; border: 1px solid var(--border); border-radius: 8px; padding: 8px; max-height: 300px; overflow: auto; font-family: ui-monospace, monospace; font-size: 11px; }
+.log-line { padding: 2px 0; border-bottom: 1px solid #161a22; }
+.log-line.error, .log-line.warn { color: var(--danger); }
+.btn { display: inline-block; background: var(--accent); color: #fff; text-decoration: none; border-radius: 6px; padding: 6px 12px; margin: 0 4px 4px 0; font-size: 13px; }
+code { background: #0b0d11; padding: 2px 6px; border-radius: 4px; }

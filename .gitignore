@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+web/dist/
+
+# runtime data (run history, sessions)
+server/data/
+*.log
+
+# env / secrets
+.env
+.env.local
+*.pem
+*.key
+
+# editor / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

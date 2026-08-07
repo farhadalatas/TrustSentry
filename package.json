@@ -1,0 +1,13 @@
+{
+  "name": "pentest-tool",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Auth workflow pentest toolkit - authorized testing only",
+  "scripts": {
+    "server": "npm --prefix server start",
+    "server:dev": "npm --prefix server run dev",
+    "web": "npm --prefix web run dev",
+    "build:web": "npm --prefix web run build",
+    "test": "node test/integration.test.js"
+  }
+}
