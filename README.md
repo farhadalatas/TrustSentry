@@ -2,7 +2,18 @@
 
 **TrustSentry** — Web-based security testing toolkit for authentication workflows (register, login, OTP, reset-password) against **authorized targets**. Built for penetration testers, bug-bounty hunters, and security engineers who want a browser-driven scanner with the depth of a manual pentest.
 
+![CI](https://img.shields.io/github/actions/workflow/status/farhadalatas/TrustSentry/ci.yml?branch=main&label=CI)
+![Release](https://img.shields.io/github/v/release/farhadalatas/TrustSentry)
+![License](https://img.shields.io/github/license/farhadalatas/TrustSentry)
+![Repo size](https://img.shields.io/github/repo-size/farhadalatas/TrustSentry)
+
 > ⚠️ **Authorized use only.** TrustSentry is designed for testing systems you own or are explicitly authorized to test. Unauthorized scanning or attacking targets is illegal.
+
+## Screenshots
+
+| Target & Config | Tool Catalog |
+|---|---|
+| ![Target & Config](docs/screenshots/config.png) | ![Tool Catalog](docs/screenshots/catalog.png) |
 
 ## Features
 
