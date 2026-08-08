@@ -40,12 +40,12 @@ function renderHtml(findings, meta) {
       </tr>`)
     .join('');
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>Pentest Report - Auth Workflow</title>
+<title>TrustSentry Security Report</title>
 <style>body{font-family:system-ui;margin:2rem;max-width:1000px}table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{border:1px solid #d1d5db;padding:8px;text-align:left;vertical-align:top}th{background:#f3f4f6}
 pre{background:#f9fafb;padding:8px;margin:0;white-space:pre-wrap}
 .badge{color:#fff;padding:2px 8px;border-radius:10px;font-size:12px}</style></head><body>
-<h1>Auth Workflow Pentest Report</h1>
+<h1>TrustSentry Security Report</h1>
 <p>Target: <b>${escapeHtml((meta && meta.target) || '-')}</b> &middot; ${(meta && meta.date) || ''}</p>
 <h2>Ringkasan</h2>
 <p>Total temuan: <b>${s.total}</b> &middot; Risk score: <b>${s.riskScore.toFixed(1)}</b></p>

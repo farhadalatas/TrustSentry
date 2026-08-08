@@ -86,7 +86,7 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>Auth Pentest Toolkit</h1>
+        <h1>TrustSentry</h1>
         <nav>
           {TABS.map((t) => (
             <button

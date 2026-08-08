@@ -215,5 +215,5 @@ app.get('/api/recommend', async (req, res) => {
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.HOST || '127.0.0.1';
 app.listen(PORT, HOST, () => {
-  console.log(`[pentest-tool] server listening on http://${HOST}:${PORT}`);
+  console.log(`[trustsentry] server listening on http://${HOST}:${PORT}`);
 });

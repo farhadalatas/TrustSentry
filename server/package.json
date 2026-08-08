@@ -1,5 +1,5 @@
 {
-  "name": "pentest-tool-server",
+  "name": "trustsentry-server",
   "version": "0.1.0",
   "private": true,
   "description": "Auth workflow pentest backend - for authorized testing only",

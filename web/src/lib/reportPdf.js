@@ -31,7 +31,7 @@ export function buildPdf({ findings, target, date, runId, requests }) {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('Auth Pentest Report', M, 40);
+  doc.text('TrustSentry Security Report', M, 40);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(180, 186, 199);
@@ -159,7 +159,7 @@ export function buildPdf({ findings, target, date, runId, requests }) {
     doc.setTextColor(140, 148, 160);
     doc.setFont('helvetica', 'normal');
     doc.text(
-      `Auth Pentest Report - ${target}  |  Halaman ${p} / ${pageCount}`,
+      `TrustSentry Security Report - ${target}  |  Halaman ${p} / ${pageCount}`,
       M,
       doc.internal.pageSize.getHeight() - 20
     );
