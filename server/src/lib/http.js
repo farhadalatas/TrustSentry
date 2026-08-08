@@ -1,16 +1,7 @@
 /**
- * Minimal HTTP client with timeout, TLS bypass, and raw response capture.
- * Uses Node 18+ global fetch. Errors are normalized so modules can react.
+ * Minimal HTTP client with timeout and normalized error captures.
+ * Uses Node 18+ global fetch.
  */
-class HttpError extends Error {
-  constructor(status, bodyText, info) {
-    super(`HTTP ${status}`);
-    this.status = status;
-    this.bodyText = bodyText;
-    this.info = info;
-  }
-}
-
 async function request({
   url,
   method = 'GET',
@@ -18,7 +9,6 @@ async function request({
   body,
   timeoutMs = 8000,
   allowRedirect = false,
-  raw = false,
 }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -34,15 +24,19 @@ async function request({
     });
   } catch (err) {
     clearTimeout(timer);
-    if (err.name === 'AbortError') {
-      return { ok: false, timedOut: true, status: 0, info: {} };
-    }
-    return { ok: false, timedOut: false, status: 0, info: {} };
+    return {
+      ok: false,
+      timedOut: err.name === 'AbortError',
+      status: 0,
+      headers: {},
+      body: '',
+      info: {},
+    };
   }
   clearTimeout(timer);
 
   const buf = await res.arrayBuffer().catch(() => Buffer.alloc(0));
-  const bodyText = raw ? Buffer.from(buf).toString('binary') : Buffer.from(buf).toString('utf8');
+  const bodyText = Buffer.from(buf).toString('utf8');
 
   return {
     ok: res.ok,
@@ -55,4 +49,4 @@ async function request({
   };
 }
 
-module.exports = { request, HttpError };
+module.exports = { request };

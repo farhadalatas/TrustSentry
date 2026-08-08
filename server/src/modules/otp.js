@@ -1,12 +1,12 @@
 const { SEV } = require('../lib/severity.js');
 const { buildCall } = require('./bruteforce.js');
+const { isSuccess } = require('../lib/success.js');
 
 async function runOtp(ctx, cfg) {
   const auth = cfg.auth || {};
   const verify = auth.verifyOtp;
   const resend = auth.resend;
   ctx.emitEvent('module', { name: 'otp', label: 'OTP / 2FA' });
-  const startIdx = ctx.findings.length;
 
   const otpMax = (ctx.config.budget && ctx.config.budget.otpMax) || 200;
 
@@ -111,10 +111,10 @@ async function runOtp(ctx, cfg) {
 
   // 5) RESEND abuse - spam resend, cek cooldown.
   if (resend) {
-    const res = buildCall(ctx, resend);
+    const resendCall = buildCall(ctx, resend);
     let blocked = false;
     for (let i = 0; i < 3; i++) {
-      const r = await res({ '<USER>': auth.email });
+      const r = await resendCall({ '<USER>': auth.email });
       if (r.status === 429 || (r.status >= 400 && r.status < 500)) {
         blocked = true;
         ctx.emitEvent('progress', { note: `resend #${i + 1} diblokir (${r.status})` });
@@ -130,14 +130,6 @@ async function runOtp(ctx, cfg) {
       });
     }
   }
-
-  return ctx.findings.slice(startIdx);
-}
-
-function isSuccess(flow, res) {
-  return Array.isArray(flow.successCodes)
-    ? flow.successCodes.includes(res.status)
-    : res.ok;
 }
 
 module.exports = { runOtp };

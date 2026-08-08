@@ -1,7 +1,10 @@
-// Temporary mock auth target to smoke-test the pentest tool.
+// Mock auth target untuk smoke/integration test.
+// BEHAVIOUR=diff (default): forgot-password & login membedakan email valid/invalid (enumeration vuln).
+// BEHAVIOUR=same: respon identik untuk kedua email (no enumeration).
 const http = require('node:http');
 
-const OK_CODES = { verifyOtp: ['000001'], login: ['rightpass'] };
+const BEHAVIOUR = process.env.BEHAVIOUR || 'diff';
+const PORT = process.env.MOCK_PORT || 3000;
 
 http.createServer((req, res) => {
   let body = '';
@@ -21,36 +24,33 @@ http.createServer((req, res) => {
     }
     let parsed = {};
     try { parsed = JSON.parse(body || '{}'); } catch {}
+    const email = parsed.email || '';
+
     if (req.url.startsWith('/api/auth/login')) {
-      const pw = parsed.password;
-      return pw === '123456'
-        ? send201(res, { token: 'ok' })
-        : res.writeHead(401, { 'Content-Type': 'application/json' }) && res.end(JSON.stringify({ error: 'invalid credentials' }));
+      if (BEHAVIOUR === 'same') return send(401, { error: 'invalid credentials' });
+      const ok = email === 'test@lab.dev';
+      return ok ? send(200, { token: 'ok' }) : send(401, { error: 'invalid credentials' });
     }
     if (req.url === '/admin' || req.url === '/api/v1' || req.url === '/swagger') {
-      return send200(res, { hidden: true });
+      return send(200, { hidden: true });
     }
     if (req.url.startsWith('/api/auth/register')) {
-      return send201(res, { id: 1 });
+      return send(201, { id: 1 });
     }
     if (req.url.startsWith('/api/auth/forgot-password')) {
-      // NOTE: differentiates valid vs invalid email -> enumeration vuln
-      return parsed.email === 'test@lab.dev'
-        ? send200(res, { ok: true })
-        : res.writeHead(404, { 'Content-Type': 'application/json' }) && res.end(JSON.stringify({ error: 'no user' }));
+      if (BEHAVIOUR === 'same') return send(200, { ok: true });
+      return email === 'test@lab.dev'
+        ? send(200, { ok: true })
+        : send(404, { error: 'no user' });
     }
     if (req.url.startsWith('/api/auth/verify-email')) {
       return parsed.otp === '000001'
-        ? send200(res, { verified: true })
-        : send400(res, { error: 'OTP_INVALID' });
+        ? send(200, { verified: true })
+        : send(400, { error: 'OTP_INVALID' });
     }
     if (req.url.startsWith('/api/auth/resend-otp')) {
-      return send200(res, { sent: true });
+      return send(200, { sent: true });
     }
     res.writeHead(404).end();
   });
-}).listen(3000, () => console.log('mock target on :3000'));
-
-function send200(res, o) { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(o)); }
-function send201(res, o) { res.writeHead(201, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(o)); }
-function send400(res, o) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(o)); }
+}).listen(PORT, () => console.log(`mock target on :${PORT} (BEHAVIOUR=${BEHAVIOUR})`));

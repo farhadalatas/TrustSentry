@@ -44,7 +44,6 @@ function auditCookies(ctx, value) {
 
 async function runSession(ctx, cfg) {
   ctx.emitEvent('module', { name: 'session', label: 'Session & JWT' });
-  const startIdx = ctx.findings.length;
 
   // 1) Cookie analysis - ambil Set-Cookie dari respons login.
   if (cfg.auth && cfg.auth.login) {
@@ -68,36 +67,34 @@ async function runSession(ctx, cfg) {
         severity: SEV.INFO,
         title: 'Token tidak bisa di-parse sebagai JWT.',
       });
-      return ctx.findings.slice(startIdx);
+      return;
     }
     const checks = [];
     if (jwt.header.alg === 'none') {
-      checks.push({ t: 'jwt-alg-none', s: SEV.CRITICAL, m: 'JWT memakai "alg": "none" - bisa dipalsukan.' });
+      checks.push({ type: 'jwt-alg-none', severity: SEV.CRITICAL, title: 'JWT memakai "alg": "none" - bisa dipalsukan.' });
     }
     if (jwt.header.kid) {
-      checks.push({ t: 'jwt-kid-unsafe', s: SEV.MEDIUM, m: 'JWT punya "kid" - uji path traversal / key confusion.' });
+      checks.push({ type: 'jwt-kid-unsafe', severity: SEV.MEDIUM, title: 'JWT punya "kid" - uji path traversal / key confusion.' });
     }
     if (!jwt.payload.exp) {
-      checks.push({ t: 'jwt-no-exp', s: SEV.MEDIUM, m: 'JWT tidak punya klaim "exp".' });
+      checks.push({ type: 'jwt-no-exp', severity: SEV.MEDIUM, title: 'JWT tidak punya klaim "exp".' });
     } else if (Date.now() / 1000 > jwt.payload.exp) {
-      checks.push({ t: 'jwt-expired', s: SEV.INFO, m: 'JWT expired - host seharusnya menolak.' });
+      checks.push({ type: 'jwt-expired', severity: SEV.INFO, title: 'JWT expired - host seharusnya menolak.' });
     }
     if (!jwt.payload.iss || !jwt.payload.aud) {
-      checks.push({ t: 'jwt-missing-claims', s: SEV.LOW, m: 'JWT kurang iss/aud (risiko token confusion).' });
+      checks.push({ type: 'jwt-missing-claims', severity: SEV.LOW, title: 'JWT kurang iss/aud (risiko token confusion).' });
     }
     for (const c of checks) {
       ctx.addFinding({
         type: c.type,
-        severity: c.sev,
-        title: c.m,
+        severity: c.severity,
+        title: c.title,
         evidence: { header: jwt.header, payload: jwt.payload },
         recommendation: 'Gunakan library JWT resmi, ikat iss/aud/exp, nonaktifkan alg:none.',
       });
     }
     ctx.emitEvent('progress', { note: `JWT payload: ${JSON.stringify(jwt.payload)}` });
   }
-
-  return ctx.findings.slice(startIdx);
 }
 
 module.exports = { runSession, decodeJwt, auditCookies };

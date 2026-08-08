@@ -1,6 +1,20 @@
 const { EventEmitter } = require('node:events');
 const { request } = require('./http.js');
 
+class RunStoppedError extends Error {
+  constructor() {
+    super('RUN_STOPPED');
+    this.name = 'RunStoppedError';
+  }
+}
+
+class BudgetError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'BudgetError';
+  }
+}
+
 const DEFAULTS = {
   maxRequests: 200,
   minDelayMs: 150,
@@ -43,11 +57,11 @@ class Run extends EventEmitter {
   /** Bounded HTTP request that respects global budget + rate. */
   async http({ url, ...opts }) {
     if (this.stopRequested) {
-      throw new Error('RUN_STOPPED');
+      throw new RunStoppedError();
     }
     this.requests += 1;
     if (this.requests > this.maxRequests) {
-      throw new Error(
+      throw new BudgetError(
         `BUDGET_EXCEEDED: global budget ${this.maxRequests} request terlampaui`
       );
     }
@@ -71,4 +85,4 @@ class Run extends EventEmitter {
   }
 }
 
-module.exports = { Run, DEFAULTS };
+module.exports = { Run, RunStoppedError, BudgetError, DEFAULTS };

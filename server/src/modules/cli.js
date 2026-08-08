@@ -46,6 +46,9 @@ function runCli(tool, args, timeoutMs = 120000) {
 
 async function runScan(ctx, cfg) {
   const tool = cfg.toolName;
+  if (!TOOLS.some((t) => t.name === tool)) {
+    throw new Error(`TOOL_NOT_ALLOWED: '${tool}' bukan tool yang diizinkan.`);
+  }
   const found = await whichBin(tool);
   if (!found) {
     throw new Error(`TOOL_NOT_FOUND: '${tool}' tidak terinstall. Jalankan 'sudo apt install ${tool}' atau gunakan module inti.`);

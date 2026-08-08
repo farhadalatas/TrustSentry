@@ -1,10 +1,11 @@
-/** Deep-substitute placeholders in a JSON body template. */
+/** Deep-substitute placeholders in a JSON body template.
+ *  Vars keys sudah berupa placeholder lengkap, mis. '<USER>', '<PASS>', '<OTP>'. */
 function applyTemplate(template, vars = {}) {
   if (template == null) return template;
   if (typeof template === 'string') {
     let out = template;
     for (const [k, v] of Object.entries(vars)) {
-      out = out.split(`<${k}>`).join(v);
+      out = out.split(k).join(v);
     }
     return out;
   }

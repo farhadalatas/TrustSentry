@@ -1,5 +1,6 @@
 const { SEV } = require('../lib/severity.js');
 const { applyTemplate, fingerprint } = require('../lib/template.js');
+const { isSuccess } = require('../lib/success.js');
 
 function resolveUrl(base, endpoint) {
   if (!endpoint) return base;
@@ -30,10 +31,6 @@ function buildCall(ctx, flow) {
   };
 }
 
-function loginSuccess(flow, res) {
-  return Array.isArray(flow.successCodes) ? flow.successCodes.includes(res.status) : res.ok;
-}
-
 function pwdStrength(pw) {
   return pw.length < 8 || /^(password|admin|123456|qwerty|letmein|test123)$/i.test(pw)
     ? SEV.HIGH
@@ -43,37 +40,36 @@ function pwdStrength(pw) {
 async function runBruteforce(ctx, cfg) {
   const auth = cfg.auth || {};
   ctx.emitEvent('module', { name: 'bruteforce', label: 'Brute Force & Rate Limit' });
-  const startIdx = ctx.findings.length;
   const sprayMax = (ctx.config.budget && ctx.config.budget.sprayMax) || 15;
   let lockoutBypassFound = false;
 
-  // 1) USER ENUMERATION: forgot-password + login with valid vs invalid email.
+// 1) USER ENUMERATION: bandingkan respon valid vs invalid email per flow.
   if (auth.forgot && auth.login) {
     const forgot = buildCall(ctx, auth.forgot);
     const login = buildCall(ctx, auth.login);
-    const probes = [
-      { label: 'invalid', email: 'nobody_' + Date.now() + '@example.org' },
-      { label: 'valid', email: auth.email },
-    ];
-    const seen = {};
-    for (const p of probes) {
-      for (const fn of [
-        { name: 'forgot-password', call: forgot },
-        { name: 'login', call: login },
-      ]) {
-        const res = await fn.call({ '<USER>': p.email, '<PASS>': 'wrongpass1!' });
-        const fp = `${fn.name} ${fingerprint(res)}`;
-        if (seen[fp] && seen[fp] !== p.label) {
-          ctx.addFinding({
-            typeId: 'brute-enumeration',
-            severity: SEV.MEDIUM,
-            title: `Enumeration user: ${fn.name} membedakan email valid/invalid`,
-            evidence: { flow: fn.name, fingerprint: fp },
-            recommendation:
-              'Seragamkan pesan, status, dan timing untuk email valid vs invalid.',
-          });
-        } else seen[fp] = p.label;
+    const invalidEmail = 'nobody_' + Date.now() + '@example.org';
+    for (const fn of [
+      { name: 'forgot-password', call: forgot },
+      { name: 'login', call: login },
+    ]) {
+      const invalidRes = await fn.call({ '<USER>': invalidEmail, '<PASS>': 'wrongpass1!' });
+      const validRes = await fn.call({ '<USER>': auth.email, '<PASS>': 'wrongpass1!' });
+      const fpi = fingerprint(invalidRes);
+      const fpv = fingerprint(validRes);
+      if (fpi === fpv) {
+        ctx.emitEvent('progress', {
+          note: `${fn.name}: respon email valid & invalid identik (tidak ada enumeration)`,
+        });
+        continue;
       }
+      ctx.addFinding({
+        type: 'brute-enumeration',
+        severity: SEV.MEDIUM,
+        title: `Enumeration user: ${fn.name} membedakan email valid/invalid`,
+        evidence: { flow: fn.name, validFingerprint: fpv, invalidFingerprint: fpi },
+        recommendation:
+          'Seragamkan pesan, status, dan timing untuk email valid vs invalid.',
+      });
     }
   }
 
@@ -83,7 +79,7 @@ async function runBruteforce(ctx, cfg) {
     const spray = (cfg.spray || []).slice(0, sprayMax);
     for (const pw of spray) {
       const res = await login({ '<USER>': auth.email, '<PASS>': pw });
-      if (loginSuccess(auth.login, res)) {
+      if (isSuccess(auth.login, res)) {
         ctx.addFinding({
           type: 'brute-spray-hit',
           severity: pwdStrength(pw),
@@ -110,7 +106,7 @@ async function runBruteforce(ctx, cfg) {
           { '<USER>': auth.email, '<PASS>': 'wrongpassXX!' },
           { [header]: val }
         );
-        if (loginSuccess(auth.login, res) && !lockoutBypassFound) {
+        if (isSuccess(auth.login, res) && !lockoutBypassFound) {
           ctx.addFinding({
             type: 'rate-limit-bypass',
             severity: SEV.HIGH,
@@ -153,8 +149,6 @@ async function runBruteforce(ctx, cfg) {
       ctx.emitEvent('progress', { note: `timing valid~${valid.median}ms invalid~${invalid.median}ms (tidak signifikan)` });
     }
   }
-
-  return ctx.findings.slice(startIdx);
 }
 
-module.exports = { runBruteforce, buildCall, applyTemplate, resolveUrl, loginSuccess };
+module.exports = { runBruteforce, buildCall, applyTemplate, resolveUrl };

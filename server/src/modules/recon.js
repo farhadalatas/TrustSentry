@@ -22,16 +22,16 @@ async function runRecon(ctx, cfg) {
   for (const [name, policy] of Object.entries(HEADER_POLICY)) {
     if (!hdrs[name]) {
       ctx.addFinding({
-        id: 'recon-missing-header',
-        sev: policy.sev,
+        type: 'recon-missing-header',
+        severity: policy.sev,
         title: `Header keamanan hilang: ${name}`,
         evidence: { header: name, responseHeaders: hdrs },
         recommendation: policy.hint,
       });
     } else {
       ctx.addFinding({
-        id: 'recon-header-ok',
-        sev: 'INFO',
+        type: 'recon-header-ok',
+        severity: 'INFO',
         title: `Header ${name} ada`,
         evidence: { header: name, value: hdrs[name] },
       });
@@ -42,7 +42,7 @@ async function runRecon(ctx, cfg) {
   const fp = { poweredBy: hdrs['x-powered-by'], server: hdrs['server'] };
   const cookieHints = {
     laravel_session: 'Laravel/PHP',
-    'connect.sid': 'Express/Node',
+    'connect.sid': 'Node/Express',
     nextauth: 'NextAuth',
     JSESSIONID: 'Java/Tomcat',
     'ASP.NET': 'ASP.NET',
@@ -57,9 +57,9 @@ async function runRecon(ctx, cfg) {
   }
   if (fp.detected || fp.poweredBy || fp.server) {
     ctx.addFinding({
-      id: 'recon-fingerprint',
-      sev: 'INFO',
-      title: `Fingerprint tekonologi: ${fp.detected || fp.poweredBy || fp.server}`,
+      type: 'recon-fingerprint',
+      severity: 'INFO',
+      title: `Fingerprint teknologi: ${fp.detected || fp.poweredBy || fp.server}`,
       evidence: fp,
       recommendation: 'Sembunyikan server/X-Powered-By header di production',
     });
@@ -76,16 +76,14 @@ async function runRecon(ctx, cfg) {
     const r = await ctx.http({ url: probeUrl, method: 'GET' });
     if (r.status === 403) {
       ctx.addFinding({
-        id: 'recon-waf',
-        sev: 'INFO',
+        type: 'recon-waf',
+        severity: 'INFO',
         title: `Potensi WAF terdeteksi (${name} payload → 403)`,
         evidence: { payload, status: r.status },
       });
       break;
     }
   }
-
-  return ctx.findings.filter((f) => f.type && f.type.startsWith('recon'));
 }
 
 module.exports = { runRecon };

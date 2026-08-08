@@ -1,5 +1,6 @@
 const { SEV } = require('../lib/severity.js');
 const { buildCall } = require('./bruteforce.js');
+const { isSuccess } = require('../lib/success.js');
 
 const DISPOSABLE_DOMAINS = [
   'mailinator.com', 'guerrillamail.com', 'sharklasers.com', 'temp-mail.org',
@@ -10,7 +11,6 @@ const DISPOSABLE_DOMAINS = [
 async function runLogic(ctx, cfg) {
   const auth = cfg.auth || {};
   ctx.emitEvent('module', { name: 'logic', label: 'Business Logic' });
-  const startIdx = ctx.findings.length;
 
   if (auth.register) {
     const register = buildCall(ctx, auth.register);
@@ -60,12 +60,6 @@ async function runLogic(ctx, cfg) {
       });
     }
   }
-
-  return ctx.findings.slice(startIdx);
-}
-
-function isSuccess(flow, res) {
-  return Array.isArray(flow.successCodes) ? flow.successCodes.includes(res.status) : res.ok;
 }
 
 module.exports = { runLogic };

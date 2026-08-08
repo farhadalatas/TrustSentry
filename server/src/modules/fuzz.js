@@ -11,9 +11,7 @@ const DEFAULT_WORDLIST = [
 ];
 
 async function runFuzz(ctx, cfg) {
-  const auth = cfg.auth || {};
   ctx.emitEvent('module', { name: 'fuzz', label: 'Endpoint Fuzzing' });
-  const startIdx = ctx.findings.length;
 
   const base = ctx.target.url.origin;
   const wordlist = (cfg.wordlist || DEFAULT_WORDLIST).slice(0, (ctx.config.budget && ctx.config.budget.fuzzMax) || 80);
@@ -46,8 +44,6 @@ async function runFuzz(ctx, cfg) {
       title: `Tidak ada endpoint baru dari ${wordlist.length} path (semua ${baseline.status}).`,
     });
   }
-
-  return ctx.findings.slice(startIdx);
 }
 
 module.exports = { runFuzz, DEFAULT_WORDLIST };

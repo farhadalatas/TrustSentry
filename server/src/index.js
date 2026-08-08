@@ -3,7 +3,7 @@ const cors = require('cors');
 const { randomUUID } = require('node:crypto');
 
 const { validateTarget } = require('./lib/scope.js');
-const { Run } = require('./lib/runner.js');
+const { Run, BudgetError, RunStoppedError } = require('./lib/runner.js');
 const { runRecon } = require('./modules/recon.js');
 const { runBruteforce } = require('./modules/bruteforce.js');
 const { runOtp } = require('./modules/otp.js');
@@ -11,10 +11,10 @@ const { runInjection } = require('./modules/injection.js');
 const { runSession, decodeJwt } = require('./modules/session.js');
 const { runFuzz } = require('./modules/fuzz.js');
 const { runLogic } = require('./modules/logic.js');
-const { runScan, detectTools, buildArgs, TOOLS } = require('./modules/cli.js');
+const { runScan, TOOLS } = require('./modules/cli.js');
 const { renderReport, renderHtml } = require('./modules/reporting.js');
 const { persistRun, listRuns, getRun } = require('./lib/store.js');
-const { getCatalog, searchTools, recommendTools } = require('./modules/catalog.js');
+const { getCatalog, recommendTools } = require('./modules/catalog.js');
 
 const app = express();
 app.use(cors());
@@ -92,7 +92,7 @@ async function executeRun(run, cfg) {
         default: run.emitEvent('warn', { message: `module tak dikenal: ${m}` });
       }
     } catch (e) {
-      if (e.message && /BUDGET_EXCEEDED|RUN_STOPPED/.test(e.message)) {
+      if (e instanceof BudgetError || e instanceof RunStoppedError) {
         run.emitEvent('warn', { message: e.message });
       } else {
         console.error(`[module ${m} ERROR]`, e);
@@ -115,7 +115,6 @@ async function executeRun(run, cfg) {
 
 async function runCli(ctx, cfg) {
   ctx.emitEvent('module', { name: 'cli', label: 'CLI tool: ' + (cfg.cli && cfg.cli.toolName || 'nmap') });
-  const { runScan } = await import('./modules/cli.js');
   ctx.emitEvent('progress', { note: 'Menjalankan CLI tool...' });
   const res = await runScan(ctx, cfg.cli || {});
   ctx.addFinding({
@@ -214,6 +213,7 @@ app.get('/api/recommend', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`[pentest-tool] server listening on http://localhost:${PORT}`);
+const HOST = process.env.HOST || '127.0.0.1';
+app.listen(PORT, HOST, () => {
+  console.log(`[pentest-tool] server listening on http://${HOST}:${PORT}`);
 });
